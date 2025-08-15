@@ -15,14 +15,24 @@ public class CompanyService(StockDbContext dbContext) : ICompanyService
         return company;
     }
 
+    public async Task<Company?> GetFirstAsync(CancellationToken cancellation = default)
+    {
+        return await dbContext.Company
+            .OrderBy(c => c.Id) 
+            .FirstOrDefaultAsync(cancellation);
+    }
+
+
     public async Task<bool> UpdateAsync(Company company, CancellationToken cancellation = default)
     {
         var updatedCompany = await dbContext.Company
             .Where(c => c.Id == company.Id)
             .ExecuteUpdateAsync(c => c
+                .SetProperty(c => c.Logo, company.Logo)
                 .SetProperty(c => c.Name, company.Name)
                 .SetProperty(c => c.Address, company.Address)
-                .SetProperty(c => c.Website, company.Website), cancellation);
+                .SetProperty(c => c.Website, company.Website)
+                .SetProperty(c => c.PhoneNumber, company.PhoneNumber), cancellation);
 
         return updatedCompany > 0;
     }
