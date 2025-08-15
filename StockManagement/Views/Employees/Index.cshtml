@@ -1,0 +1,151 @@
+﻿@model PagedResult<Employee>
+@{
+    ViewData["Title"] = "Liste des employés";
+}
+
+<a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+    <i class="bi bi-plus-circle"></i> Nouvel employé
+</a>
+
+<table class="table table-bordered table-hover mt-4">
+    <thead>
+        <tr>
+            <th>Nom et prénoms</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Items.Any())
+        {
+            <tr class="bg-light">
+                <td colspan="5" class="text-center">
+                    Aucun employé trouvé
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var employee in Model.Items)
+            {
+                <tr>
+                    <td>@employee.FullName</td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editModal"
+                                data-employee-id="@employee.Id"
+                                data-employee-name="@employee.FullName">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+                                data-employee-id="@employee.Id"
+                                data-employee-name="@employee.FullName">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<!-- Bootstrap Create Employee Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Create" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Enregistrer un nouvel employé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="Name" class="form-label">Nom et prénoms</label>
+                        <input type="text" class="form-control" id="FullName" name="FullName" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Edit Employee Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Edit" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Modifier les infos de l'employé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editEmployeeId" name="Id" />
+                    <div class="mb-3">
+                        <label for="editFullName" class="form-label">Nom et prénoms</label>
+                        <input type="text" class="form-control" id="editFullName" name="FullName" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Modifier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir retirer l'employé <strong id="employeeFullName"></strong> ?</p>
+                    <input type="hidden" id="employeeId" name="id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var employeeId = button.getAttribute('data-employee-id');
+            var employeeName = button.getAttribute('data-employee-name');
+            var modalemployeeName = deleteModal.querySelector('#employeeFullName');
+            var modalemployeeId = deleteModal.querySelector('#employeeId');
+            modalemployeeName.textContent = employeeName;
+            modalemployeeId.value = employeeId;
+        });
+
+        // Edit Modal logic
+        var editModal = document.getElementById('editModal');
+        editModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var employeeId = button.getAttribute('data-employee-id');
+            var employeeName = button.getAttribute('data-employee-name');
+
+            editModal.querySelector('#editEmployeeId').value = employeeId;
+            editModal.querySelector('#editFullName').value = employeeName;
+        });
+    </script>
+}
