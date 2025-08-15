@@ -1,0 +1,148 @@
+﻿@model PagedResult<Supplier>
+@{
+    ViewData["Title"] = "Liste des fournisseurs";
+}
+
+<a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+    <i class="bi bi-plus-circle"></i> Nouveau fournisseur
+</a>
+
+<table class="table table-bordered table-hover mt-4">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Items.Any())
+        {
+            <tr class="bg-light">
+                <td colspan="5" class="text-center">
+                    Aucun fournisseur trouvé
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var supplier in Model.Items)
+            {
+                <tr>
+                    <td>@supplier.Name</td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editModal"
+                                data-supplier-id="@supplier.Id"
+                                data-supplier-name="@supplier.Name">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+                                data-supplier-id="@supplier.Id"
+                                data-supplier-name="@supplier.Name">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<!-- Bootstrap Create Supplier Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Create" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Enregistrer un nouveau fournisseur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="Name" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="Name" name="Name" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Edit Supplier Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Edit" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Modifier les infos du fournisseur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editSupplierId" name="Id" />
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="editName" name="Name" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Modifier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir retirer le fournisseur <strong id="supplierName"></strong> ?</p>
+                    <input type="hidden" id="supplierId" name="id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var supplierId = button.getAttribute('data-supplier-id');
+            var supplierName = button.getAttribute('data-supplier-name');
+            deleteModal.querySelector('#supplierName').textContent = supplierName;
+            deleteModal.querySelector('#supplierId').value = supplierId;
+        });
+
+        var editModal = document.getElementById('editModal');
+        editModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var supplierId = button.getAttribute('data-supplier-id');
+            var supplierName = button.getAttribute('data-supplier-name');
+
+            editModal.querySelector('#editSupplierId').value = supplierId;
+            editModal.querySelector('#editName').value = supplierName;
+        });
+    </script>
+}
